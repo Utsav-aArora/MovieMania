@@ -4,7 +4,6 @@ import com.example.moviemania.constants.FavouriteContentType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,18 +12,18 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @Entity
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class FavouriteDetail {
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Integer favouriteId;
     private LocalDate updatedOn;
     private String comment;
     private Integer rating;
-    private Integer contentId;
+    private Long contentId;
     private FavouriteContentType contentType;
 
 }

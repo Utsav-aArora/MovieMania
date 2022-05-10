@@ -12,7 +12,7 @@ public class CustomFavouriteDetail {
 
     private String comment;
     private Integer rating;
-    private Integer contentId;
+    private Long contentId;
     private FavouriteContentType contentType;
 }
 

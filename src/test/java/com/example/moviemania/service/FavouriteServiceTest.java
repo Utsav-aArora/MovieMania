@@ -3,10 +3,9 @@ package com.example.moviemania.service;
 import com.example.moviemania.constants.FavouriteContentType;
 import com.example.moviemania.exception.ConflictException;
 import com.example.moviemania.exception.NotFoundException;
-import com.example.moviemania.models.CustomFavouriteDetail;
-import com.example.moviemania.models.FavouriteDetail;
-import com.example.moviemania.models.FavouriteDetailToBeEdited;
+import com.example.moviemania.models.*;
 import com.example.moviemania.repository.FavouriteRepository;
+import com.example.moviemania.service.external.TmdbService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -25,6 +25,10 @@ public class FavouriteServiceTest {
     @MockBean
     FavouriteRepository favouriteRepository;
 
+    @MockBean
+    TmdbService tmdbService;
+
+
     @Autowired
     FavouriteService favouriteService;
 
@@ -33,15 +37,15 @@ public class FavouriteServiceTest {
         FavouriteDetail favouriteDetail = new FavouriteDetail();
         favouriteDetail.setComment("nice movie");
         favouriteDetail.setRating(4);
-        favouriteDetail.setContentId(123213);
+        favouriteDetail.setContentId(123213L);
         favouriteDetail.setContentType(FavouriteContentType.MOVIE);
-        favouriteDetail.setId(1);
+        favouriteDetail.setFavouriteId(1);
         favouriteDetail.setUpdatedOn(LocalDate.now());
 
         CustomFavouriteDetail customFavouriteDetail=new CustomFavouriteDetail();
         customFavouriteDetail.setComment("nice movie");
         customFavouriteDetail.setRating(4);
-        customFavouriteDetail.setContentId(123213);
+        customFavouriteDetail.setContentId(123213L);
         customFavouriteDetail.setContentType(FavouriteContentType.MOVIE);
 
 
@@ -58,16 +62,16 @@ public class FavouriteServiceTest {
         FavouriteDetail favouriteDetail=new FavouriteDetail();
         favouriteDetail.setComment("nice movie");
         favouriteDetail.setRating(4);
-        favouriteDetail.setContentId(123213);
+        favouriteDetail.setContentId(12321L);
         favouriteDetail.setContentType(FavouriteContentType.MOVIE);
         favouriteDetail.setContentType(FavouriteContentType.MOVIE);
-        favouriteDetail.setContentId(123);
+        favouriteDetail.setContentId(123L);
 
 
         CustomFavouriteDetail customFavouriteDetail=new CustomFavouriteDetail();
         customFavouriteDetail.setComment("nice movie");
         customFavouriteDetail.setRating(4);
-        customFavouriteDetail.setContentId(123213);
+        customFavouriteDetail.setContentId(123213L);
         customFavouriteDetail.setContentType(FavouriteContentType.MOVIE);
 
 
@@ -84,9 +88,9 @@ public class FavouriteServiceTest {
         FavouriteDetail favouriteDetail = new FavouriteDetail();
         favouriteDetail.setComment("nice movie");
         favouriteDetail.setRating(4);
-        favouriteDetail.setContentId(123213);
+        favouriteDetail.setContentId(123213L);
         favouriteDetail.setContentType(FavouriteContentType.MOVIE);
-        favouriteDetail.setId(1);
+        favouriteDetail.setFavouriteId(1);
         favouriteDetail.setUpdatedOn(LocalDate.now());
 
         FavouriteDetailToBeEdited favouriteDetailToBeEdited=new FavouriteDetailToBeEdited();
@@ -111,4 +115,50 @@ public class FavouriteServiceTest {
         verify(favouriteRepository, times(1)).deleteById(favouriteID);
     }
 
+    @Test
+    public void checkIfCorrespondingDataIsReturningForGivenFavouriteId()
+    {
+        Integer favouriteId=1;
+
+        FavouriteDetail favouriteDetail = new FavouriteDetail();
+        favouriteDetail.setComment("nice movie");
+        favouriteDetail.setRating(4);
+        favouriteDetail.setContentId(123213L);
+        favouriteDetail.setContentType(FavouriteContentType.MOVIE);
+        favouriteDetail.setFavouriteId(1);
+        favouriteDetail.setUpdatedOn(LocalDate.now());
+        favouriteDetail.setFavouriteId(1);
+
+        long contentId=123;
+        TmdbMovieDetail tmdbMovieDetail=new TmdbMovieDetail();
+        tmdbMovieDetail.setId(contentId);
+        when(tmdbService.getOneFavouriteData(contentId)).thenReturn(tmdbMovieDetail);
+        when(favouriteRepository.getById(favouriteId)).thenReturn(favouriteDetail);
+
+        FinalCustomisedFavouriteDetail finalCustomisedFavouriteDetail=new FinalCustomisedFavouriteDetail();
+        finalCustomisedFavouriteDetail.setFavouriteDetail(favouriteDetail);
+        Assertions.assertEquals(favouriteId,finalCustomisedFavouriteDetail.getFavouriteDetail().getFavouriteId());
+    }
+
+    @Test
+    public void returnCustomisedFavouriteDetailCorrespondingToGetRequest()
+    {
+        FavouriteDetail favouriteDetail=new FavouriteDetail();
+        FavouriteDetail favouriteDetail1=new FavouriteDetail();
+
+        long contentId=123;
+        TmdbMovieDetail tmdbMovieDetail=new TmdbMovieDetail();
+        tmdbMovieDetail.setId(contentId);
+        when(tmdbService.getOneFavouriteData(contentId)).thenReturn(tmdbMovieDetail);
+
+        when(favouriteRepository.findAll()).thenReturn(List.of(favouriteDetail,favouriteDetail1));
+        List<FinalCustomisedFavouriteDetail> finalCustomisedFavouriteDetails=favouriteService.getAllFavouriteDetail();
+        Assertions.assertEquals(2,finalCustomisedFavouriteDetails.size());
+
+        verify(tmdbService, times(2)).getOneFavouriteData(contentId);
+
+
+
+
+    }
 }

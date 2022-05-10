@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface FavouriteRepository extends JpaRepository<FavouriteDetail,Integer>
 {
-    Optional<FavouriteDetail> findByContentTypeAndContentId(FavouriteContentType contentType, Integer contentId);
+    Optional<FavouriteDetail> findByContentTypeAndContentId(FavouriteContentType contentType, Long contentId);
 }

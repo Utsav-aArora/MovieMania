@@ -67,13 +67,11 @@ public class FavouriteServiceTest {
         favouriteDetail.setContentType(FavouriteContentType.MOVIE);
         favouriteDetail.setContentId(123L);
 
-
         CustomFavouriteDetail customFavouriteDetail=new CustomFavouriteDetail();
         customFavouriteDetail.setComment("nice movie");
         customFavouriteDetail.setRating(4);
         customFavouriteDetail.setContentId(123213L);
         customFavouriteDetail.setContentType(FavouriteContentType.MOVIE);
-
 
         when(favouriteRepository.findByContentTypeAndContentId(customFavouriteDetail.getContentType(),customFavouriteDetail.getContentId())).thenReturn(Optional.of(favouriteDetail));
         Assertions.assertThrows(ConflictException.class, ()-> favouriteService.newFavourite(customFavouriteDetail));
@@ -125,9 +123,7 @@ public class FavouriteServiceTest {
         favouriteDetail.setRating(4);
         favouriteDetail.setContentId(123213L);
         favouriteDetail.setContentType(FavouriteContentType.MOVIE);
-        favouriteDetail.setFavouriteId(1);
         favouriteDetail.setUpdatedOn(LocalDate.now());
-        favouriteDetail.setFavouriteId(1);
 
         long contentId=123;
         TmdbMovieDetail tmdbMovieDetail=new TmdbMovieDetail();
@@ -146,19 +142,56 @@ public class FavouriteServiceTest {
         FavouriteDetail favouriteDetail=new FavouriteDetail();
         FavouriteDetail favouriteDetail1=new FavouriteDetail();
 
-        long contentId=123;
+        favouriteDetail.setFavouriteId(123);
+        favouriteDetail.setContentId(123L);
+        favouriteDetail1.setFavouriteId(456);
+        favouriteDetail1.setContentId(456L);
+
         TmdbMovieDetail tmdbMovieDetail=new TmdbMovieDetail();
-        tmdbMovieDetail.setId(contentId);
-        when(tmdbService.getOneFavouriteData(contentId)).thenReturn(tmdbMovieDetail);
+        tmdbMovieDetail.setId(123L);
+        tmdbMovieDetail.setAdult(false);
+        tmdbMovieDetail.setBackdrop_path("/jOuCWdh0BE6XPu2Vpjl08wDAeFz.jpg");
+        tmdbMovieDetail.setGenres(List.of(new Genre(123,"asdasd")));
+        tmdbMovieDetail.setOverview("as");
+        tmdbMovieDetail.setOriginal_language("sfsdf");
+        tmdbMovieDetail.setOriginal_title("sadad");
+        tmdbMovieDetail.setPopularity(4F);
+        tmdbMovieDetail.setPoster_path("ytuty");
+        tmdbMovieDetail.setRelease_date(LocalDate.now());
+        tmdbMovieDetail.setTitle("tyutyu");
+        tmdbMovieDetail.setVote_average(2F);
+        tmdbMovieDetail.setVote_count(22L);
+        tmdbMovieDetail.setVideo(false);
+
+        TmdbMovieDetail tmdbMovieDetail1=new TmdbMovieDetail();
+        tmdbMovieDetail1.setId(456L);
+        tmdbMovieDetail1.setAdult(false);
+        tmdbMovieDetail1.setBackdrop_path("/jOuCWdh0BE6XPu2Vpjl08wDAeFz.jpg");
+        tmdbMovieDetail1.setGenres(List.of(new Genre(123,"asdasd")));
+        tmdbMovieDetail1.setOverview("as");
+        tmdbMovieDetail1.setOriginal_language("sfsdf");
+        tmdbMovieDetail1.setOriginal_title("sadad");
+        tmdbMovieDetail1.setPopularity(4F);
+        tmdbMovieDetail1.setPoster_path("");
+        tmdbMovieDetail1.setRelease_date(LocalDate.now());
+        tmdbMovieDetail1.setTitle("");
+        tmdbMovieDetail1.setVote_average(2F);
+        tmdbMovieDetail1.setVote_count(22L);
+        tmdbMovieDetail1.setVideo(false);
+
+
+        when(tmdbService.getOneFavouriteData(123L)).thenReturn(tmdbMovieDetail);
+        when(tmdbService.getOneFavouriteData(456L)).thenReturn(tmdbMovieDetail1);
+
 
         when(favouriteRepository.findAll()).thenReturn(List.of(favouriteDetail,favouriteDetail1));
         List<FinalCustomisedFavouriteDetail> finalCustomisedFavouriteDetails=favouriteService.getAllFavouriteDetail();
         Assertions.assertEquals(2,finalCustomisedFavouriteDetails.size());
+        Assertions.assertEquals(123,finalCustomisedFavouriteDetails.get(0).getFavouriteDetail().getFavouriteId());
+        Assertions.assertEquals(456,finalCustomisedFavouriteDetails.get(1).getFavouriteDetail().getFavouriteId());
 
-        verify(tmdbService, times(2)).getOneFavouriteData(contentId);
-
-
-
+        verify(tmdbService, times(1)).getOneFavouriteData(123L);
+        verify(tmdbService, times(1)).getOneFavouriteData(456L);
 
     }
 }
